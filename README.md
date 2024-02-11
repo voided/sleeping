@@ -14,10 +14,10 @@ Basically: push button on the Pico. Pings the web server. The server records the
 ## server
 
 - it's C#.
-- .NET8 Blazor for the web tech.
+- .NET8 API for the web tech.
 
 ## Stuff to know
 
-The Pico W runs the RP2040 chip. It's a 32bit ARM Cortex-M0+ chipset.
+The Pico W runs the RP2040 chip. It's a 32-bit ARM Cortex-M0+ chipset.
 
 Wifi chip is CYW43439, the cyw43 library handles this.
