@@ -5,8 +5,6 @@
 mod net;
 mod wifi;
 
-use core::borrow::Borrow;
-
 use defmt::*;
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
@@ -55,12 +53,29 @@ async fn main(spawner: Spawner) {
         unwrap!(net_stack.config_v4()).address
     );
 
+    let mut wasPressed = false;
+
     loop {
         if peripherals.BOOTSEL.is_pressed() {
-            info!("led on!");
+            // if we already detected the button was pressed, do nothing
+            if wasPressed {
+                continue;
+            }
+
+            // otherwise, this is the first time hitting the button
+            wasPressed = true;
+
+            info!("button!");
             wifi_control.gpio_set(0, true).await;
         } else {
-            info!("led off!");
+            // button wasn't pressed, and still isn't pressed, do nothing
+            if !wasPressed {
+                continue;
+            }
+
+            // otherwise, this is the first time no longer pressing the button
+            wasPressed = false;
+
             wifi_control.gpio_set(0, false).await;
         }
     }
