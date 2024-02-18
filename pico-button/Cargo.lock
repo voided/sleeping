@@ -1145,6 +1145,7 @@ dependencies = [
  "panic-probe",
  "portable-atomic",
  "rand",
+ "smoltcp",
  "static_cell",
 ]
 
