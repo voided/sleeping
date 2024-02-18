@@ -1,0 +1,5 @@
+{
+    "rust-analyzer.cargo.extraArgs": [
+        "--config=.cargo/config-secrets.toml"
+    ],
+}

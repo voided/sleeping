@@ -1,0 +1,23 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cargo",
+            "command": "build",
+            "args": [
+                "--config=.cargo/config-secrets.toml"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/pico-button"
+            },
+            "problemMatcher": [
+                "$rustc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "label": "rust: cargo build"
+        }
+    ]
+}
