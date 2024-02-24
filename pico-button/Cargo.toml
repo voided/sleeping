@@ -47,7 +47,7 @@ embassy-net = { version = "0.4.0", features = [
     "dns",
     "dhcpv4",
 ] }
-cyw43 = { version = "0.1.0", features = ["defmt", "firmware-logs"] }
+cyw43 = { version = "0.1.0", features = ["defmt"] }
 cyw43-pio = { version = "0.1.0", features = ["defmt"] }
 
 
