@@ -113,15 +113,7 @@ async fn button_pressed(
         }
     };
 
-    info!("HTTP status = {}", response.status);
-
-    for (header, value) in response.headers() {
-        info!(
-            "Header {} = {}",
-            header,
-            core::str::from_utf8(value).unwrap()
-        );
-    }
+    info!("Server returned = {}", response.status);
 
     wifi_control.gpio_set(0, true).await;
 }
