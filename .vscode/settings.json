@@ -2,4 +2,5 @@
     "rust-analyzer.cargo.extraArgs": [
         "--config=.cargo/config-secrets.toml"
     ],
+    "rust-analyzer.checkOnSave": false,
 }
