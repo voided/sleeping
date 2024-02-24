@@ -6,28 +6,31 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-defmt = "0.3"
-defmt-rtt = "0.4"
+# our userland dependencies
+
+# default features bring in some std/alloc rng features we don't want
+rand = { version = "0.8", default-features = false, features = ["small_rng"] }
+reqwless = { version = "0.11.0", default-features = false, features = [
+    "defmt",
+] }
+
+
+# embassy related dependencies and configuration
+
+# to use embassy-net in some networks we need to increase the max dns server count per network stack
+# of the smoltcp package
 smoltcp = { version = "0.11.0", default-features = false, features = [
     "socket",
     "async",
     "dns-max-server-count-4",
 ] }
-panic-probe = { version = "0.3", features = ["print-defmt"] }
-rand = { version = "0.8", features = ["small_rng"], default-features = false }
-
-static_cell = "2.0"
-portable-atomic = { version = "1.6", features = ["critical-section"] }
-
 embassy-sync = { version = "0.5.0", features = ["defmt"] }
-
 embassy-executor = { version = "0.5.0", features = [
     "nightly",
     "defmt",
     "arch-cortex-m",
     "integrated-timers",
     "executor-thread",
-    # "executor-interrupt",
 ] }
 embassy-time = { version = "0.3.0", features = [
     "defmt",
@@ -37,20 +40,33 @@ embassy-rp = { version = "0.1.0", features = [
     "defmt",
     "intrinsics",
     "time-driver",
-    "critical-section-impl",
 ] }
 embassy-net = { version = "0.4.0", features = [
     "defmt",
     "tcp",
     "dns",
-    "proto-ipv4",
-    "dhcpv4-hostname",
-    "medium-ip",
-    "medium-ethernet",
+    "dhcpv4",
 ] }
+cyw43 = { version = "0.1.0", features = ["defmt", "firmware-logs"] }
+cyw43-pio = { version = "0.1.0", features = ["defmt"] }
 
-cortex-m = { version = "0.7.7", features = ["inline-asm"] }
+
+# cortext dependencies
+cortex-m = { version = "0.7.7", features = [
+    "inline-asm",
+    # NOTE: this feature is important. embassy-rp provides a critical section impl
+    # that doesn't do a great job of resetting the second core of the RP2040.
+    # so instead we rely on the cortex-m impl. hopefully this doesn't mess with
+    # BOOTSEL polling (which is some insane multi-core GPIO XIP shit).
+    # see also: https://github.com/embassy-rs/embassy/issues/1736
+    "critical-section-single-core",
+] }
 cortex-m-rt = "0.7.3"
 
-cyw43 = { version = "0.1.0", features = ["defmt", "firmware-logs"] }
-cyw43-pio = { version = "0.1.0", features = ["defmt", "overclock"] }
+
+# root dependencies
+defmt = "0.3"
+defmt-rtt = "0.4"
+static_cell = "2.0"
+panic-probe = { version = "0.3", features = ["print-defmt"] }
+portable-atomic = { version = "1.6", features = ["critical-section"] }
