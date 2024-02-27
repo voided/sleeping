@@ -70,7 +70,7 @@ pub async fn init<'a>(
     control.init(WIFI_CLM).await;
 
     control
-        .set_power_management(cyw43::PowerManagementMode::PowerSave)
+        .set_power_management(cyw43::PowerManagementMode::Performance)
         .await;
 
     // if you encounter a build error here, ensure you're building with `--config .cargo/config-secrets.toml`
