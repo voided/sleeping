@@ -12,6 +12,7 @@ use embassy_net::{
     dns::DnsSocket,
     tcp::client::{TcpClient, TcpClientState},
 };
+use embassy_time::{Duration, Instant, Timer};
 use reqwless::{client::HttpClient, request::RequestBuilder};
 use wifi::WifiPeripherals;
 
@@ -46,7 +47,18 @@ async fn main(spawner: Spawner) {
 
     let mut client = HttpClient::new(&tcp_client, &dns_socket);
 
+    let mut next_ping = Instant::now();
+
     loop {
+        // periodically hit the ping endpoint to keep things cached and connections alive
+        if Instant::now() > next_ping {
+            sleeping_request(&mut client, "/api/sleeping/ping").await;
+            led_pattern_ping(&mut wifi_control).await;
+
+            // set up the next ping in 10 seconds
+            next_ping = Instant::now() + Duration::from_secs(10);
+        }
+
         if peripherals.BOOTSEL.is_pressed() {
             // if we already detected the button was pressed, do nothing
             if was_pressed {
@@ -66,11 +78,53 @@ async fn main(spawner: Spawner) {
             // otherwise, this is the first time no longer pressing the button
             was_pressed = false;
 
-            button_released(&mut wifi_control).await;
+            button_released(&mut client, &mut wifi_control).await;
         }
     }
 }
 
+const LED_PIN: u8 = 0;
+
+async fn led_enable(wifi_control: &mut Control<'_>) {
+    wifi_control.gpio_set(LED_PIN, true).await;
+}
+async fn led_disable(wifi_control: &mut Control<'_>) {
+    wifi_control.gpio_set(LED_PIN, false).await;
+}
+
+async fn led_enable_millis(wifi_control: &mut Control<'_>, duration_ms: u64) {
+    led_enable(wifi_control).await;
+    Timer::after_millis(duration_ms).await;
+    led_disable(wifi_control).await;
+}
+
+async fn led_pattern_done(wifi_control: &mut Control<'_>) {
+    const LED_DURATION: u64 = 250;
+
+    let mut counter = 0;
+
+    while counter < 4 {
+        led_enable_millis(wifi_control, LED_DURATION).await;
+        Timer::after_millis(LED_DURATION).await;
+
+        counter += 1;
+    }
+}
+
+async fn led_pattern_ping(wifi_control: &mut Control<'_>) {
+    const LED_DURATION: u64 = 100;
+
+    let mut counter = 0;
+
+    while counter < 6 {
+        led_enable_millis(wifi_control, LED_DURATION).await;
+        Timer::after_millis(LED_DURATION).await;
+
+        counter += 1;
+    }
+}
+
+#[allow(unused_variables)]
 async fn button_pressed(
     client: &mut HttpClient<
         '_,
@@ -79,23 +133,56 @@ async fn button_pressed(
     >,
     wifi_control: &mut Control<'_>,
 ) {
-    info!("button!");
+    info!("Button pressed");
 
+    led_enable(wifi_control).await;
+}
+
+async fn button_released(
+    client: &mut HttpClient<
+        '_,
+        TcpClient<'_, NetDriver<'_>, 4, 1024, 1024>,
+        DnsSocket<'_, NetDriver<'_>>,
+    >,
+    wifi_control: &mut Control<'_>,
+) {
+    info!("Button released");
+
+    led_enable(wifi_control).await;
+    sleeping_request(client, "/api/sleeping/record").await;
+    led_disable(wifi_control).await;
+
+    Timer::after_millis(1000).await;
+
+    led_pattern_done(wifi_control).await;
+}
+
+async fn sleeping_request(
+    client: &mut HttpClient<
+        '_,
+        TcpClient<'_, NetDriver<'_>, 4, 1024, 1024>,
+        DnsSocket<'_, NetDriver<'_>>,
+    >,
+    endpoint: &str,
+) {
     let mut resource = match client
         .resource(core::env!("PICOBUTTON_SERVER_ENDPOINT"))
         .await
     {
         Ok(resource) => resource,
         Err(error) => {
-            error!("Unable to connect to server endpoint: {}", error);
+            error!(
+                "{}: Unable to connect to server endpoint: {}",
+                endpoint, error
+            );
             return;
         }
     };
 
-    let mut rx_buf = [0; 4096];
+    let mut rx_buf = [0; 1024];
 
     let response = match resource
-        .post("/api/ping")
+        .post(endpoint)
         .headers(&[(
             "Authorization",
             core::concat!(
@@ -108,16 +195,13 @@ async fn button_pressed(
     {
         Ok(response) => response,
         Err(error) => {
-            error!("Unable to make request to server endpoint: {}", error);
+            error!(
+                "{}: Unable to make request to server endpoint: {}",
+                endpoint, error
+            );
             return;
         }
     };
 
-    info!("Server returned = {}", response.status);
-
-    wifi_control.gpio_set(0, true).await;
-}
-
-async fn button_released(wifi_control: &mut Control<'_>) {
-    wifi_control.gpio_set(0, false).await;
+    info!("{}: Server returned = {}", endpoint, response.status);
 }

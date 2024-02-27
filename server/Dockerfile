@@ -20,4 +20,4 @@ COPY --from=build /app/out .
 # aspnet apps listen on port 8080 by default
 EXPOSE 8080
 
-ENTRYPOINT ["dotnet", "Server.dll"]
+ENTRYPOINT ["dotnet", "server.dll"]
