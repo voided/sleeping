@@ -8,15 +8,25 @@ namespace Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class PingController(PingRecorder pingRecorder) : ControllerBase
+    public class SleepingController(PingRecorder pingRecorder) : ControllerBase
     {
-        [HttpPost("")]
+        [Route("ping")]
         [ProducesResponseType<PingResponse>(StatusCodes.Status200OK)]
-        public async Task<PingResponse> Ping()
+        public PingResponse Ping()
+        {
+            return new PingResponse
+            {
+                Time = DateTime.UtcNow,
+            };
+        }
+
+        [HttpPost("record")]
+        [ProducesResponseType<RecordResponse>(StatusCodes.Status200OK)]
+        public async Task<RecordResponse> Record()
         {
             DateTime timeRecorded = await pingRecorder.Record();
 
-            return new PingResponse
+            return new RecordResponse
             {
                 TimeRecorded = timeRecorded,
             };

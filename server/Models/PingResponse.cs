@@ -2,6 +2,6 @@
 {
     public class PingResponse
     {
-        public DateTime TimeRecorded { get; set; }
+        public DateTime Time { get; set; }
     }
 }
