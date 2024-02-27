@@ -32,12 +32,18 @@ pub async fn led_pattern(
     }
 }
 
+pub async fn led_pattern_ready(wifi_control: &mut Control<'_>) {
+    led_pattern(wifi_control, 100, 200, 2).await;
+    Timer::after_millis(500).await;
+    led_pattern(wifi_control, 100, 200, 2).await;
+}
+
 pub async fn led_pattern_done(wifi_control: &mut Control<'_>) {
     led_pattern(wifi_control, 250, 250, 4).await;
 }
 
 pub async fn led_pattern_error(wifi_control: &mut Control<'_>) {
-    led_pattern(wifi_control, 2000, 200, 4).await;
+    led_pattern(wifi_control, 1000, 200, 4).await;
 }
 
 pub async fn led_pattern_ping(wifi_control: &mut Control<'_>) {

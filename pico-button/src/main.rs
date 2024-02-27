@@ -8,7 +8,7 @@ mod net;
 mod wifi;
 
 use crate::client::{sleeping_ping, sleeping_record};
-use crate::led::{led_disable, led_enable};
+use crate::led::{led_disable, led_enable, led_pattern_ready};
 use crate::wifi::WifiPeripherals;
 use cyw43::{Control, NetDriver};
 use defmt::*;
@@ -49,9 +49,13 @@ async fn main(spawner: Spawner) {
 
     let mut client = HttpClient::new(&tcp_client, &dns_socket);
 
-    let mut was_pressed = false;
-    let mut next_ping = Instant::now();
+    // we're initialized, signal to the user
+    led_pattern_ready(&mut wifi_control).await;
 
+    let mut was_pressed = false;
+    let mut next_ping = Instant::now() + Duration::from_secs(5);
+
+    // pings should occur every 30 seconds
     const PING_DELAY: u64 = 30;
 
     loop {
@@ -59,7 +63,6 @@ async fn main(spawner: Spawner) {
         if Instant::now() >= next_ping {
             sleeping_ping(&mut client, &mut wifi_control).await;
 
-            // set up the next ping in 10 seconds
             next_ping = Instant::now() + Duration::from_secs(PING_DELAY);
         }
 
