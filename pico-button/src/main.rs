@@ -43,16 +43,16 @@ async fn main(spawner: Spawner) {
     // initialize the network software stack
     let net_stack = net::init(spawner, net_device).await;
 
-    let mut was_pressed = false;
-
     let tcp_state = TcpClientState::<4, 1024, 1024>::new();
-
     let tcp_client = TcpClient::new(net_stack, &tcp_state);
     let dns_socket = DnsSocket::new(net_stack);
 
     let mut client = HttpClient::new(&tcp_client, &dns_socket);
 
+    let mut was_pressed = false;
     let mut next_ping = Instant::now();
+
+    const PING_DELAY: u64 = 30;
 
     loop {
         // periodically hit the ping endpoint to keep things cached and connections alive
@@ -60,7 +60,7 @@ async fn main(spawner: Spawner) {
             sleeping_ping(&mut client, &mut wifi_control).await;
 
             // set up the next ping in 10 seconds
-            next_ping = Instant::now() + Duration::from_secs(10);
+            next_ping = Instant::now() + Duration::from_secs(PING_DELAY);
         }
 
         if peripherals.BOOTSEL.is_pressed() {
@@ -72,6 +72,9 @@ async fn main(spawner: Spawner) {
             // otherwise, this is the first time hitting the button
             was_pressed = true;
 
+            // pings don't need to closely overlap with our button actions
+            next_ping = Instant::now() + Duration::from_secs(PING_DELAY);
+
             button_pressed(&mut client, &mut wifi_control).await;
         } else {
             // button wasn't pressed, and still isn't pressed, do nothing
@@ -81,6 +84,9 @@ async fn main(spawner: Spawner) {
 
             // otherwise, this is the first time no longer pressing the button
             was_pressed = false;
+
+            // pings don't need to closely overlap with our button actions
+            next_ping = Instant::now() + Duration::from_secs(PING_DELAY);
 
             button_released(&mut client, &mut wifi_control).await;
         }
