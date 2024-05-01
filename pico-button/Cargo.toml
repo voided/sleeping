@@ -68,6 +68,6 @@ cortex-m-rt = "0.7.4"
 # root dependencies
 defmt = "0.3"
 defmt-rtt = "0.4"
-static_cell = "2.0"
+static_cell = "2.1.0"
 panic-probe = { version = "0.3", features = ["print-defmt"] }
 portable-atomic = { version = "1.6", features = ["critical-section"] }
