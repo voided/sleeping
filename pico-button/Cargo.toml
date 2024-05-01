@@ -9,7 +9,7 @@ edition = "2021"
 # our userland dependencies
 
 # default features bring in some std/alloc rng features we don't want
-rand = { version = "0.8", default-features = false, features = ["small_rng"] }
+rand = { version = "0.8.5", default-features = false, features = ["small_rng"] }
 reqwless = { version = "0.11.0", default-features = false, features = [
     "defmt",
 ] }
