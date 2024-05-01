@@ -66,7 +66,7 @@ cortex-m-rt = "0.7.4"
 
 
 # root dependencies
-defmt = "0.3"
+defmt = "0.3.6"
 defmt-rtt = "0.4"
 static_cell = "2.0"
 panic-probe = { version = "0.3", features = ["print-defmt"] }
