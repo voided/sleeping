@@ -10,7 +10,7 @@ edition = "2021"
 
 # default features bring in some std/alloc rng features we don't want
 rand = { version = "0.8", default-features = false, features = ["small_rng"] }
-reqwless = { version = "0.11.0", default-features = false, features = [
+reqwless = { version = "0.12.0", default-features = false, features = [
     "defmt",
 ] }
 
