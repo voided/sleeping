@@ -180,9 +180,9 @@ dependencies = [
 
 [[package]]
 name = "buffered-io"
-version = "0.5.3"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf0dfc813c9291040651fda6c77667635f9c98f863007d8d600bcfa261a4a8fc"
+checksum = "d5698b2eda4613b62f3aa3119805df1ca6739e00167a2600b3a234ac49b14803"
 dependencies = [
  "embedded-io",
  "embedded-io-async",
@@ -602,7 +602,7 @@ dependencies = [
  "embassy-sync 0.5.0",
  "embassy-time",
  "embedded-io-async",
- "embedded-nal-async",
+ "embedded-nal-async 0.7.1",
  "futures",
  "generic-array 0.14.7",
  "heapless 0.8.0",
@@ -803,14 +803,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "embedded-nal"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c56a28be191a992f28f178ec338a0bf02f63d7803244add736d026a471e6ed77"
+dependencies = [
+ "nb 1.1.0",
+]
+
+[[package]]
 name = "embedded-nal-async"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72229137a4fc12d239b0b7f50f04b30790678da6d782a0f3f1909bf57ec4b759"
 dependencies = [
  "embedded-io-async",
- "embedded-nal",
+ "embedded-nal 0.8.0",
  "no-std-net",
+]
+
+[[package]]
+name = "embedded-nal-async"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "76959917cd2b86f40a98c28dd5624eddd1fa69d746241c8257eac428d83cb211"
+dependencies = [
+ "embedded-io-async",
+ "embedded-nal 0.9.0",
 ]
 
 [[package]]
@@ -1679,16 +1698,16 @@ checksum = "c08c74e62047bb2de4ff487b251e4a92e24f48745648451635cec7d591162d9f"
 
 [[package]]
 name = "reqwless"
-version = "0.12.0"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04ff2a18de08295a6ae5fcdfa2c888e348f526c84c2f011479de4808b14871ea"
+checksum = "fb1be74cb817fa6dbda417110f575d9b9ad5488817f1eb65f2f6468fe6d5d663"
 dependencies = [
  "base64",
  "buffered-io",
  "defmt",
  "embedded-io",
  "embedded-io-async",
- "embedded-nal-async",
+ "embedded-nal-async 0.8.0",
  "embedded-tls",
  "heapless 0.8.0",
  "hex",
